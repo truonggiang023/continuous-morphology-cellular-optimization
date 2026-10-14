@@ -1,0 +1,16 @@
+{
+  "seed": 42,
+  "test_size": 0.2,
+  "features": [
+    {"name": "morphology_parameter", "lower": 0.0, "upper": 1.0, "unit": "dimensionless"},
+    {"name": "relative_density", "lower": 0.1, "upper": 0.4, "unit": "dimensionless"}
+  ],
+  "objectives": [
+    {"name": "SEA", "direction": "max", "unit": "J/kg"},
+    {"name": "peak_force", "direction": "min", "unit": "N"}
+  ],
+  "population": 40,
+  "generations": 20,
+  "trees": 100,
+  "shap_samples": 50
+}

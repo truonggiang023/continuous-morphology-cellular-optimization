@@ -1,0 +1,25 @@
+{
+  "study": "Continuous morphology AlSi10Mg core-only quasi-static compression",
+  "seed": 42,
+  "test_size": 0.2,
+  "group_column": "design_id",
+  "filters": {"dataset": "B", "qa_accepted": 1, "densification_status": "ok"},
+  "features": [
+    {"name": "r_L", "lower": 0.40, "upper": 0.60, "unit": "dimensionless"},
+    {"name": "t", "lower": 0.30, "upper": 0.60, "unit": "mm"},
+    {"name": "lambda_m", "lower": -1.0, "upper": 1.0, "unit": "dimensionless"}
+  ],
+  "objectives": [
+    {"name": "SEA_60_J_kg", "direction": "max", "unit": "J/kg"},
+    {"name": "PCF_preD_N", "direction": "min", "unit": "N"}
+  ],
+  "primary_model": "xgboost",
+  "benchmark_models": ["xgboost", "random_forest", "svr"],
+  "cv_folds": 5,
+  "trees": 200,
+  "shap_samples": 100,
+  "population": 100,
+  "generations": 100,
+  "material": {"name": "AlSi10Mg", "process": "LPBF", "E_MPa": 69000, "nu": 0.30, "rho_tonne_mm3": 2.67e-9},
+  "objective_note": "Provisional SEA_60 choice. Repeat with SEA_d_J_kg in a separate run before freezing the final research objective."
+}
