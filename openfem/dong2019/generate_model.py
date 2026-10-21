@@ -40,7 +40,7 @@ TARGET_HEX = 10068
 PAPER_AREA = 76.0 * 25.0
 COMPRESSION_STRAIN = 0.80
 STEP_TIME_MS = 1000.0
-DT_TARGET_MS = 0.01
+DT_TARGET_MS = None  # natural timestep is default; mass scaling requires opt-in
 FRICTION_PLATEN = 0.35
 FRICTION_SELF = 0.0
 
@@ -190,10 +190,10 @@ def geometry_primitives():
                 pitch_x=pitch, actual_inclined=math.hypot(half_h, waist))
     return surfaces, (xmin, ymin, xmax, ymax), meta
 
-def add_polygon_geo(lines, pts, pid, lid, loopid):
+def add_polygon_geo(lines, pts, pid, lid, loopid, lc):
     point_ids = []
     for x, y in pts:
-        lines.append(f"Point({pid}) = {{{x:.12g}, {y:.12g}, 0, 1.0}};")
+        lines.append(f"Point({pid}) = {{{x:.12g}, {y:.12g}, 0, {lc:.12g}}};")
         point_ids.append(pid); pid += 1
     curve_ids = []
     for i in range(len(point_ids)):
@@ -221,12 +221,12 @@ def write_geo(path: Path, lc: float):
     for j, raw in enumerate(loops):
         pts = orient([(float(x), float(y)) for x, y in raw], ccw=(j == 0))
         this_loop = loopid
-        pid, lid, loopid = add_polygon_geo(lines, pts, pid, lid, loopid)
+        pid, lid, loopid = add_polygon_geo(lines, pts, pid, lid, loopid, lc)
         loop_ids.append(this_loop)
 
     lines.append(f"Plane Surface(1) = {{{','.join(map(str, loop_ids))}}};")
     lines += [
-        f"Mesh.CharacteristicLengthMin = {min(0.30,lc):.12g};",
+        f"Mesh.CharacteristicLengthMin = {lc:.12g};",
         f"Mesh.CharacteristicLengthMax = {lc:.12g};",
         "Mesh.CharacteristicLengthFromCurvature = 0;",
         "Mesh.CharacteristicLengthExtendFromBoundary = 1;",
@@ -301,11 +301,10 @@ def quad_quality(nodes, quads):
     return {"min_scaled_jacobian_2d":min_sj,"max_edge_aspect_2d":max_aspect,"nonpositive_corners":inverted}
 
 def choose_mesh(work: Path, requested_lc):
-    # Mesh.SubdivisionAlgorithm=1 halves the characteristic edge length
-    # in the final all-quad mesh. Parent lc ~1.1-1.3 mm therefore gives
-    # final in-plane resolution ~0.55-0.65 mm, close to Dong's reported
-    # 12/19=0.632 mm horizontal and 5.66/10=0.566 mm bevel resolutions.
-    candidates = [requested_lc] if requested_lc else [1.05,1.10,1.15,1.20,1.25,1.30]
+    # The original GEO hard-coded 1.0 mm for every Point, overriding the
+    # trial characteristic lengths and producing an identical mesh each time.
+    # Sample different boundary resolutions; verify CAD/mesh area independently.
+    candidates = [requested_lc] if requested_lc else [0.20,0.30,0.45,0.60]
     trials=[]; best=None
     for lc in candidates:
         geo=work/f"core_lc_{lc:.2f}.geo"; msh=work/f"core_lc_{lc:.2f}.msh"
@@ -315,18 +314,27 @@ def choose_mesh(work: Path, requested_lc):
             nodes,quads,types=read_msh2(msh)
             nhex=len(quads)*N_Z
             q=quad_quality(nodes,quads)
+            mesh_area=sum(abs(signed_area([(nodes[n][0],nodes[n][1]) for n in quad])) for quad in quads)
+            ref_area=float(meta["exact_section_area_mm2"])
+            area_error=abs(mesh_area/ref_area-1)
             trial={"parent_lc":lc,"estimated_final_h":0.5*lc,
+                   "mesh_area_mm2":mesh_area,"CAD_area_mm2":ref_area,
+                   "area_error_pct":100.0*area_error,
                    "quads":len(quads),"hex_estimate":nhex,"types":types,**q}
             trials.append(trial)
             final_h = 0.5 * lc
             target_h = 0.5 * (L1 / 19.0 + L_BEVEL / 10.0)
             score=abs(nhex-TARGET_HEX)/TARGET_HEX + 0.15*abs(final_h-target_h)/target_h
-            if q["nonpositive_corners"]: score += 100
+            if q["nonpositive_corners"] or area_error > 0.02 or q["min_scaled_jacobian_2d"] < 0.2:
+                trial["status"]="rejected: geometric validity check"
+                continue
+            trial["status"]="accepted for physics preflight"
             if best is None or score<best[0]: best=(score,msh,trial,bounds,meta)
         except Exception as exc:
             trials.append({"lc":lc,"status":"rejected","reason":str(exc)})
+    (work/"mesh_candidate_report.json").write_text(json.dumps(trials,indent=2)+"\n")
     if best is None:
-        raise RuntimeError("No all-quad mesh candidate was produced: " + json.dumps(trials))
+        raise RuntimeError("No geometrically acceptable mesh. See mesh_candidate_report.json; "+json.dumps(trials))
     return best[1], {"trials":trials,"selected":best[2]}, best[3], best[4]
 
 def extrude_hex(nodes2d, quads):
@@ -391,7 +399,16 @@ def write_starter(path, nodes, hexes, front, back, bounds):
             f"{1:10d}{4:10d}{0:10d}{0:10d}{0:10d}{0:10d}{0:10d}{2:10d}{0.0:20.10g}",
             fmt_floats([1.1,0.05,0.10,0.0,0.0]),fmt_floats([0.0,0.0,0.0,0.0,0.0]),fmt_ints([0,0,0])]
 
-    oop=front+back
+    # Radioss /RWALL is a kinematic condition, not a penalty-only contact.
+    # Nodes simultaneously in the platen RWALL search zone and U3/BCS can
+    # trigger WARNING 312. This provisional diagnostic removes U3 only near
+    # platens, retaining plane restraint in the interior. Validate z-motion
+    # and compare with a penalty-contact platen before claiming equivalence.
+    search=2.0
+    oop_candidates=front+back
+    oop=[nid for nid in oop_candidates
+         if (ymin + search + 1.0e-6) < nodes[nid][1] < (ymax - search - 1.0e-6)]
+    excluded_oop=len(oop_candidates)-len(oop)
     out += ["/BCS/1","Core_out_of_plane_U3_0",f"   001 000{0:10d}{10:10d}","/GRNOD/NODE/10","Core_front_back_z_faces"]
     out += [fmt_ints(c) for c in chunks(oop)]
     out += ["/BCS/2","Bottom_wall_master_fixed",f"   111 000{0:10d}{11:10d}","/GRNOD/NODE/11","Bottom_wall_master",fmt_ints([master_bottom])]
@@ -403,7 +420,6 @@ def write_starter(path, nodes, hexes, front, back, bounds):
             f"{200:10d}{'Y':>10s}{'':>10s}{0:10d}{12:10d}{'':>10s}{0:10d}",
             fmt_floats([1.0,-disp,0.0,STEP_TIME_MS])]
 
-    search=2.0
     out += ["/RWALL/PLANE/1","Bottom_pedestal",
             f"{master_bottom:10d}{2:10d}{0:10d}{0:10d}{0:10d}",
             f"{search:20.10g}{FRICTION_PLATEN:20.10g}{0.0:20.10g}{0.0:20.10g}{0:10d}",
@@ -426,28 +442,42 @@ def write_starter(path, nodes, hexes, front, back, bounds):
             "/TH/NODE/2","Top_wall_motion","DEF",f"{master_top:10d}{0:10d}",
             "/TH/PART/3","Core_energies","DEF",fmt_ints([1]),"/END"]
     path.write_text("\n".join(out)+"\n")
-    return {"master_bottom":master_bottom,"master_top":master_top,"compression_displacement_mm":disp}
+    return {"master_bottom": master_bottom, "master_top": master_top, "compression_displacement_mm": disp,
+            "oop_constraint_nodes": len(oop), "oop_excluded_near_platens": excluded_oop,
+            "oop_bc_scope": "INTERIOR ONLY; provisional workaround for RWALL/BCS overlap"}
 
-def write_engine(path):
+def write_engine(path, target_dt_ms=None):
     out=["#RADIOSS ENGINE","/RUN/Dong2019_thin/1/",f"{STEP_TIME_MS:.10g}",
          "/PRINT/-1000","/TFILE",f"{STEP_TIME_MS/200:.10g}",
          "/ANIM/DT",f"0 {STEP_TIME_MS/50:.10g}",
          "/ANIM/VECT/DISP","/ANIM/VECT/VEL","/ANIM/ELEM/VONM","/ANIM/BRICK/EPSP","/ANIM/BRICK/HOURG",
-         "/DT/NODA/CST",f"0.67 {DT_TARGET_MS:.10g}"]
+          ]
+    if target_dt_ms is not None:
+        if target_dt_ms <= 0:
+            raise ValueError("Mass scaling target timestep must be positive")
+        out += ["/DT/NODA/CST", f"0.67 {target_dt_ms:.10g}"]
     path.write_text("\n".join(out)+"\n")
 
 def main():
+    global STEP_TIME_MS
     ap=argparse.ArgumentParser()
     ap.add_argument("--out",default="openfem/dong2019/generated")
     ap.add_argument("--lc",type=float,default=None)
+    ap.add_argument("--step-time-ms",type=float,default=STEP_TIME_MS,
+                    help="Compression time in ms; physical 2 mm/min corresponds to 1152000 ms at 80 percent strain.")
+    ap.add_argument("--target-dt-ms",type=float,default=None,
+                    help="Opt-in nodal timestep / mass scaling. Check added mass and energy balance.")
     args=ap.parse_args()
+    if args.step_time_ms <= 0:
+        ap.error("--step-time-ms must be positive")
+    STEP_TIME_MS = args.step_time_ms
     outdir=Path(args.out); outdir.mkdir(parents=True,exist_ok=True)
     msh,mesh_report,bounds,meta=choose_mesh(outdir,args.lc)
     nodes2d,quads,types=read_msh2(msh)
     nodes3d,hexes,front,back=extrude_hex(nodes2d,quads)
     starter=outdir/"Dong2019_thin_0000.rad"; engine=outdir/"Dong2019_thin_0001.rad"
     deckmeta=write_starter(starter,nodes3d,hexes,front,back,bounds)
-    write_engine(engine)
+    write_engine(engine, args.target_dt_ms)
 
     xmin,ymin,xmax,ymax=bounds
     area=sum(abs(signed_area([(nodes2d[n][0],nodes2d[n][1]) for n in q])) for q in quads)
@@ -458,7 +488,7 @@ def main():
       "geometry":{"bounds_mm":[xmin,ymin,xmax,ymax],"nominal_height_mm":48.0,"depth_mm":DEPTH,
                   "mesh_area_mm2":area,"mesh_volume_mm3":volume,"relative_density_vs_76x48":area/(76.0*48.0),**meta},
       "mesh":{**mesh_report,"selected_2d_quads":len(quads),"selected_3d_hex8":len(hexes),"z_layers":N_Z,"gmsh_types":types},
-      "loading":{"step_time_ms":STEP_TIME_MS,"target_dt_ms":DT_TARGET_MS,"compression_strain":COMPRESSION_STRAIN,
+      "loading":{"step_time_ms":STEP_TIME_MS,"compression_strain":COMPRESSION_STRAIN,"target_dt_ms":args.target_dt_ms,
                  "nominal_stress_area_mm2":PAPER_AREA,"platen_friction":FRICTION_PLATEN,"self_friction":FRICTION_SELF},
       "model_scope":{"damage":"OFF in Stage-1 baseline; full Dong triaxiality locus is not published",
                      "platens":"rigid walls for Stage-1; paper used elastic steel plates"},
