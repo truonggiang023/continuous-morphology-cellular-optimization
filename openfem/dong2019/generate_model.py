@@ -391,8 +391,7 @@ def write_starter(path, nodes, hexes, front, back, bounds):
             f"{1:10d}{4:10d}{0:10d}{0:10d}{0:10d}{0:10d}{0:10d}{2:10d}{0.0:20.10g}",
             fmt_floats([1.1,0.05,0.10,0.0,0.0]),fmt_floats([0.0,0.0,0.0,0.0,0.0]),fmt_ints([0,0,0])]
 
-    oop=front+back
-    out += ["/BCS/1","Core_out_of_plane_U3_0",f"   001 000{0:10d}{10:10d}","/GRNOD/NODE/10","Core_front_back_z_faces"]
+    # Radioss /RWALL is a kinematic condition, not a penalty-only contact.\n    # Nodes simultaneously in the platen RWALL search zone and U3/BCS can\n    # trigger WARNING 312. This provisional diagnostic removes U3 only near\n    # platens, retaining plane restraint in the interior. Validate z-motion\n    # and compare with a penalty-contact platen before claiming equivalence.\n    search=2.0\n    oop_candidates=front+back\n    oop=[nid for nid in oop_candidates\n         if (ymin + search + 1.0e-6) < nodes[nid][1] < (ymax - search - 1.0e-6)]\n    excluded_oop=len(oop_candidates)-len(oop)\n    out += ["/BCS/1","Core_out_of_plane_U3_0",f"   001 000{0:10d}{10:10d}","/GRNOD/NODE/10","Core_front_back_z_faces"]
     out += [fmt_ints(c) for c in chunks(oop)]
     out += ["/BCS/2","Bottom_wall_master_fixed",f"   111 000{0:10d}{11:10d}","/GRNOD/NODE/11","Bottom_wall_master",fmt_ints([master_bottom])]
     out += ["/BCS/3","Top_wall_master_XZ_fixed",f"   101 000{0:10d}{12:10d}","/GRNOD/NODE/12","Top_wall_master",fmt_ints([master_top])]
@@ -403,7 +402,6 @@ def write_starter(path, nodes, hexes, front, back, bounds):
             f"{200:10d}{'Y':>10s}{'':>10s}{0:10d}{12:10d}{'':>10s}{0:10d}",
             fmt_floats([1.0,-disp,0.0,STEP_TIME_MS])]
 
-    search=2.0
     out += ["/RWALL/PLANE/1","Bottom_pedestal",
             f"{master_bottom:10d}{2:10d}{0:10d}{0:10d}{0:10d}",
             f"{search:20.10g}{FRICTION_PLATEN:20.10g}{0.0:20.10g}{0.0:20.10g}{0:10d}",
@@ -426,7 +424,7 @@ def write_starter(path, nodes, hexes, front, back, bounds):
             "/TH/NODE/2","Top_wall_motion","DEF",f"{master_top:10d}{0:10d}",
             "/TH/PART/3","Core_energies","DEF",fmt_ints([1]),"/END"]
     path.write_text("\n".join(out)+"\n")
-    return {"master_bottom":master_bottom,"master_top":master_top,"compression_displacement_mm":disp}
+    return {"master_bottom":master_bottom,"master_top":master_top,"compression_displacement_mm":disp,\n            "oop_constraint_nodes":len(oop),"oop_excluded_near_platens":excluded_oop,\n            "oop_bc_scope":"INTERIOR ONLY; provisional workaround for RWALL/BCS overlap"}
 
 def write_engine(path, target_dt_ms=None):
     out=["#RADIOSS ENGINE","/RUN/Dong2019_thin/1/",f"{STEP_TIME_MS:.10g}",
