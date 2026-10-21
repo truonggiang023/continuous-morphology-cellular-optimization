@@ -470,7 +470,7 @@ def main():
       "geometry":{"bounds_mm":[xmin,ymin,xmax,ymax],"nominal_height_mm":48.0,"depth_mm":DEPTH,
                   "mesh_area_mm2":area,"mesh_volume_mm3":volume,"relative_density_vs_76x48":area/(76.0*48.0),**meta},
       "mesh":{**mesh_report,"selected_2d_quads":len(quads),"selected_3d_hex8":len(hexes),"z_layers":N_Z,"gmsh_types":types},
-      "loading":{"step_time_ms":STEP_TIME_MS,"target_dt_ms":DT_TARGET_MS,"compression_strain":COMPRESSION_STRAIN,"target_dt_ms":args.target_dt_ms,
+      "loading":{"step_time_ms":STEP_TIME_MS,"compression_strain":COMPRESSION_STRAIN,"target_dt_ms":args.target_dt_ms,
                  "nominal_stress_area_mm2":PAPER_AREA,"platen_friction":FRICTION_PLATEN,"self_friction":FRICTION_SELF},
       "model_scope":{"damage":"OFF in Stage-1 baseline; full Dong triaxiality locus is not published",
                      "platens":"rigid walls for Stage-1; paper used elastic steel plates"},
