@@ -419,7 +419,7 @@ def write_engine(path):
          "/PRINT/-1000","/TFILE",f"{STEP_TIME_MS/200:.10g}",
          "/ANIM/DT",f"0 {STEP_TIME_MS/50:.10g}",
          "/ANIM/VECT/DISP","/ANIM/VECT/VEL","/ANIM/ELEM/VONM","/ANIM/BRICK/EPSP","/ANIM/BRICK/HOURG",
-         "/DT/NODA/CST/0",f"0.9 {DT_TARGET_MS:.10g}"]
+         "/DT/NODA/CST",f"0.67 {DT_TARGET_MS:.10g}"]
     path.write_text("\n".join(out)+"\n")
 
 def main():
