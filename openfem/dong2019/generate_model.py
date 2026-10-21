@@ -230,7 +230,9 @@ def write_geo(path: Path, lc: float):
         f"Mesh.CharacteristicLengthMax = {lc:.12g};",
         "Mesh.CharacteristicLengthFromCurvature = 0;",
         "Mesh.CharacteristicLengthExtendFromBoundary = 1;",
-        "Mesh.Algorithm = 6;",\n        "Mesh.RecombineAll = 1;",\n        "Mesh.RecombinationAlgorithm = 3;",
+        "Mesh.Algorithm = 6;",
+        "Mesh.RecombineAll = 1;",
+        "Mesh.RecombinationAlgorithm = 3;",
         "Mesh.SaveAll = 1;",
         'Physical Surface("CORE") = {1};',
     ]
