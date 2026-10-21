@@ -22,3 +22,17 @@ Run `python3 openfem/dong2019/physics_audit.py --case openfem/dong2019/generated
 5. Only then study ductile damage initiation/evolution as a documented material-calibration sensitivity. Validate final results against energy balance, failure modes and mesh convergence.
 
 The audit is deliberately a diagnostic check: it does not change solver physics and DOES NOT establish agreement with the paper. A passing audit is necessary, not sufficient, for publication-grade validation.
+
+## 2026-10-21: Starter warning 312 isolated to BCS versus RWALL
+
+The detailed `Dong2019_thin_0000.out` file explicitly reports `BOUNDARY CONDITION / RIGID WALL` (3,972 possible incompatible conditions). The model restrains U3 for all z-face nodes, including nodes selected within the platen rigid-wall search domain. A **diagnostic only** modification excludes nodes within 2 mm of top and bottom from U3 BCS. This may eliminate the overconstraint but it no longer enforces out-of-plane restraint on those nodes. Hence it CANNOT by itself validate the paper's boundary conditions. Test a penalty-based platen contact with U3 restraint intact, compare reactions, energy balance and transverse displacement; only accept if they agree.
+
+Commands for a fresh Starter check:
+
+```bash
+git switch validation/dong2019-physics-audit
+git pull origin validation/dong2019-physics-audit
+DONG2019_CASE_DIR="$PWD/openfem/dong2019/run_v3" bash openfem/dong2019/run_validation.sh
+```
+
+Do not use or compare Engine results unless the startup warnings are resolved and the physics audit has been reviewed. The speed remains accelerated (2304 mm/min), and mesh area mismatch remains unfixed.
