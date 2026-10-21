@@ -5,8 +5,12 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$REPO_ROOT"
 source scripts/env_opencourant.sh
 
-CASE_DIR="$REPO_ROOT/openfem/dong2019/generated"
-rm -rf "$CASE_DIR"
+CASE_DIR="${DONG2019_CASE_DIR:-$REPO_ROOT/openfem/dong2019/generated_natural_dt}"
+if [[ -e "$CASE_DIR/starter.log" || -e "$CASE_DIR/engine.log" ]]; then
+  echo "Refusing to overwrite an existing solver run: $CASE_DIR" >&2
+  echo "Set DONG2019_CASE_DIR to a new empty directory." >&2
+  exit 3
+fi
 mkdir -p "$CASE_DIR"
 
 python3 openfem/dong2019/generate_model.py --out "$CASE_DIR" | tee "$CASE_DIR/generate.log"
@@ -34,6 +38,7 @@ if [[ -n "$FIRST_ANIM" && -n "$ANIM_CONVERTER" ]]; then
 fi
 
 python3 "$REPO_ROOT/openfem/dong2019/postprocess.py" "$CASE_DIR" | tee postprocess.log || true
+python3 "$REPO_ROOT/openfem/dong2019/physics_audit.py" --case "$CASE_DIR" | tee physics_audit.log || true
 
 echo "==> Generated result files"
 find . -maxdepth 1 -type f -printf '%f\n' | sort
