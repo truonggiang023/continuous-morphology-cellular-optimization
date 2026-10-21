@@ -40,7 +40,7 @@ TARGET_HEX = 10068
 PAPER_AREA = 76.0 * 25.0
 COMPRESSION_STRAIN = 0.80
 STEP_TIME_MS = 1000.0
-DT_TARGET_MS = 0.01
+DT_TARGET_MS = None  # natural timestep is default; mass scaling requires opt-in
 FRICTION_PLATEN = 0.35
 FRICTION_SELF = 0.0
 
@@ -428,26 +428,38 @@ def write_starter(path, nodes, hexes, front, back, bounds):
     path.write_text("\n".join(out)+"\n")
     return {"master_bottom":master_bottom,"master_top":master_top,"compression_displacement_mm":disp}
 
-def write_engine(path):
+def write_engine(path, target_dt_ms=None):
     out=["#RADIOSS ENGINE","/RUN/Dong2019_thin/1/",f"{STEP_TIME_MS:.10g}",
          "/PRINT/-1000","/TFILE",f"{STEP_TIME_MS/200:.10g}",
          "/ANIM/DT",f"0 {STEP_TIME_MS/50:.10g}",
          "/ANIM/VECT/DISP","/ANIM/VECT/VEL","/ANIM/ELEM/VONM","/ANIM/BRICK/EPSP","/ANIM/BRICK/HOURG",
-         "/DT/NODA/CST",f"0.67 {DT_TARGET_MS:.10g}"]
+          ]
+    if target_dt_ms is not None:
+        if target_dt_ms <= 0:
+            raise ValueError("Mass scaling target timestep must be positive")
+        out += ["/DT/NODA/CST", f"0.67 {target_dt_ms:.10g}"]
     path.write_text("\n".join(out)+"\n")
 
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--out",default="openfem/dong2019/generated")
     ap.add_argument("--lc",type=float,default=None)
+    ap.add_argument("--step-time-ms",type=float,default=STEP_TIME_MS,
+                    help="Compression time in ms; physical 2 mm/min corresponds to 1152000 ms at 80 percent strain.")
+    ap.add_argument("--target-dt-ms",type=float,default=None,
+                    help="Opt-in nodal timestep / mass scaling. Check added mass and energy balance.")
     args=ap.parse_args()
+    if args.step_time_ms <= 0:
+        ap.error("--step-time-ms must be positive")
+    global STEP_TIME_MS
+    STEP_TIME_MS = args.step_time_ms
     outdir=Path(args.out); outdir.mkdir(parents=True,exist_ok=True)
     msh,mesh_report,bounds,meta=choose_mesh(outdir,args.lc)
     nodes2d,quads,types=read_msh2(msh)
     nodes3d,hexes,front,back=extrude_hex(nodes2d,quads)
     starter=outdir/"Dong2019_thin_0000.rad"; engine=outdir/"Dong2019_thin_0001.rad"
     deckmeta=write_starter(starter,nodes3d,hexes,front,back,bounds)
-    write_engine(engine)
+    write_engine(engine, args.target_dt_ms)
 
     xmin,ymin,xmax,ymax=bounds
     area=sum(abs(signed_area([(nodes2d[n][0],nodes2d[n][1]) for n in q])) for q in quads)
@@ -458,7 +470,7 @@ def main():
       "geometry":{"bounds_mm":[xmin,ymin,xmax,ymax],"nominal_height_mm":48.0,"depth_mm":DEPTH,
                   "mesh_area_mm2":area,"mesh_volume_mm3":volume,"relative_density_vs_76x48":area/(76.0*48.0),**meta},
       "mesh":{**mesh_report,"selected_2d_quads":len(quads),"selected_3d_hex8":len(hexes),"z_layers":N_Z,"gmsh_types":types},
-      "loading":{"step_time_ms":STEP_TIME_MS,"target_dt_ms":DT_TARGET_MS,"compression_strain":COMPRESSION_STRAIN,
+      "loading":{"step_time_ms":STEP_TIME_MS,"target_dt_ms":DT_TARGET_MS,"compression_strain":COMPRESSION_STRAIN,"target_dt_ms":args.target_dt_ms,
                  "nominal_stress_area_mm2":PAPER_AREA,"platen_friction":FRICTION_PLATEN,"self_friction":FRICTION_SELF},
       "model_scope":{"damage":"OFF in Stage-1 baseline; full Dong triaxiality locus is not published",
                      "platens":"rigid walls for Stage-1; paper used elastic steel plates"},
