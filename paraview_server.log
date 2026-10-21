@@ -1,0 +1,41 @@
+ParaView is using venv: /workspaces/continuous-morphology-cellular-optimization/.pv-venv
+MultiView is not available without installing trame-dockview.
+Viewing: openfem/dong2019/results_vtk/Dong2019_thinA033.vtk
+Point fields: ['Displacement', 'NODE_ID', 'Velocity']
+Cell fields: ['2DELEM_Von_Mises', '3DELEM_Hourglass_Energy_per_unit_mass', '3DELEM_Plastic_Strain', '3DELEM_Von_Mises', 'ELEMENT_ID', 'EROSION_STATUS', 'PART_ID']
+And to prevent your browser from opening, add '--server' to your command line.
+
+App running at:
+ - Local:   http://0.0.0.0:1234/
+ - Network: http://0.0.0.0:1234/
+
+Note that for multi-users you need to use and configure a launcher.
+Error handling request from 127.0.0.1
+Traceback (most recent call last):
+  File "/workspaces/continuous-morphology-cellular-optimization/.pv-venv/lib/python3.11/site-packages/wslink/backends/aiohttp/__init__.py", line 273, in handleWsRequest
+    await current_ws.prepare(request)
+  File "/workspaces/continuous-morphology-cellular-optimization/.pv-venv/lib/python3.11/site-packages/aiohttp/web_ws.py", line 279, in prepare
+    protocol, writer = self._pre_start(request)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/continuous-morphology-cellular-optimization/.pv-venv/lib/python3.11/site-packages/aiohttp/web_ws.py", line 373, in _pre_start
+    headers, protocol, compress, notakeover = self._handshake(request)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/continuous-morphology-cellular-optimization/.pv-venv/lib/python3.11/site-packages/aiohttp/web_ws.py", line 291, in _handshake
+    raise HTTPBadRequest(
+aiohttp.web_exceptions.HTTPBadRequest: Bad Request
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/workspaces/continuous-morphology-cellular-optimization/.pv-venv/lib/python3.11/site-packages/aiohttp/web_protocol.py", line 577, in _handle_request
+    resp = await request_handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/continuous-morphology-cellular-optimization/.pv-venv/lib/python3.11/site-packages/aiohttp/web_app.py", line 563, in _handle
+    return await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/continuous-morphology-cellular-optimization/.pv-venv/lib/python3.11/site-packages/wslink/backends/aiohttp/__init__.py", line 278, in handleWsRequest
+    await self.onClose(client_id)
+  File "/workspaces/continuous-morphology-cellular-optimization/.pv-venv/lib/python3.11/site-packages/wslink/protocol.py", line 197, in onClose
+    del self.unchunkers[client_id]
+        ~~~~~~~~~~~~~~~^^^^^^^^^^^
+KeyError: '4589e4949aed46988fb1215fe8009e2e'

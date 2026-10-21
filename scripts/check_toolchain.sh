@@ -6,7 +6,8 @@ source scripts/env_opencourant.sh
 echo "================ OpenFEM toolchain check ================"
 echo "Architecture       : $(uname -m)"
 echo "Python             : $(python3 --version)"
-echo "Gmsh               : $(gmsh --version)"
+GMSH_VERSION="$(gmsh --version 2>&1 | tail -n 1)"
+echo "Gmsh               : $GMSH_VERSION"
 echo "OPENCOURANT_PATH   : $OPENCOURANT_PATH"
 echo "RAD_CFG_PATH       : $RAD_CFG_PATH"
 

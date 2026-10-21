@@ -1,0 +1,289 @@
+ Dong2019_thin_0001.out
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**                    Linux 64 bits, GNU compiler                     **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+** CommitID: cb760c206e346eff12161a2268b134ef9d48a4ef                 **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ NUMBER OF SPMD DOMAINS           1
+ NUMBER OF THREADS PER DOMAIN     4
+ NUMBER OF HMPP PROCESSES         4
+  
+ COMPUTATION HARDWARE DESCRIPTION
+  
+ HOSTNAME     CPU TYPE, FREQUENCY AND MEMORY
+ codespaces-ced8fc   AMD EPYC 7763 64-Core Processor (x86_64), 3236 MHz,  15993 MB RAM,      0 MB swap
+  
+ STACKSIZE  . . . . . . . . . . . . . . . . . . . . 8 MB
+ THREAD STACKSIZE . . . . . . . . . . . . . . . . . 0 MB
+ 
+************************************************************************
+
+
+ Dong2019_thinD01                                                                
+
+
+ FINAL TIME . . . . . . . . . . . . . . . . . . .   1000.000    
+
+ TIME INTERVAL FOR TIME HISTORY PLOTS . . . . . .   5.000000    
+
+ TIME STEP SCALE FACTOR . . . . . . . . . . . . .  0.9000000    
+
+ MINIMUM TIME STEP  . . . . . . . . . . . . . . .   0.000000    
+
+
+ NODAL TIME STEP SCALE FACTOR,  . . . . . . . . .  0.6700000    
+ NODAL MINIMUM TIME STEP. . . . . . . . . . . . .  0.1000000E-01
+ MIN. TIME FLAG . . . . . . . . . . . . . . . . .     8
+    1:STOP. . . . . . . . . . . . . . . . . . . . 
+    3:INCREASE MASS, ORIGINAL FORMULATION . . . . 
+    8:INCREASE MASS, IMPROVED FORMULATION . . . . 
+
+
+ BRICK TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ BRICK MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME STEP FLAG (1:STOP RUN, 2:DELETE BRICK)     0
+
+ QUAD TIME STEP SCALE FACTOR. . . . . . . . . . .  0.9000000    
+ QUAD MINIMUM TIME STEP . . . . . . . . . . . . .   0.000000    
+ MIN. TIME STEP FLAG (1:STOP RUN, 2:DELETE QUAD).     0
+
+ SHELL TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ SHELL MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE, 3:SMALL STRAIN)    0
+
+ TRUSS TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ TRUSS MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ BEAM TIME STEP SCALE FACTOR. . . . . . . . . . .  0.9000000    
+ BEAM MINIMUM TIME STEP . . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ SPRING TIME STEP SCALE FACTOR. . . . . . . . . .  0.9000000    
+ SPRING MINIMUM TIME STEP . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ AIRBAG TIME STEP SCALE FACTOR. . . . . . . . . .  0.9000000    
+ AIRBAG MINIMUM TIME STEP . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP). . . . . . . . . . . . .     0
+
+ CONTACT TIME STEP SCALE FACTOR . . . . . . . . .  0.9000000    
+ CONTACT MINIMUM TIME STEP. . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG(1:STOP, 2:REMOVE NODE FROM INTERF)    0
+
+ PRINTOUT CYCLE FREQUENCY . . . . . . . . . . . . -1000
+
+ RESTART CYCLE FREQUENCY. . . . . . . . . . . . .   10000000
+
+ MAXIMUM RESTART WRITE BEFORE OVERWRITE . . . . .     0
+
+ INVERS: INPUT DECK VERSION . . . . . . . . . . .   101
+ ITTYP : FLAG FOR TYPE OF T-FILE. . . . . . . . .     4
+
+ INITIAL TIME STEP. . . . . . . . . . . . . . . .   0.000000    
+ MAXIMUM TIME STEP. . . . . . . . . . . . . . . .  0.1000000E+21
+
+ PARALLEL ARITHMETIC ON
+ NUMBER OF INTERFACES TO BE ELIMINATED. . . . . .        0
+
+ NUMBER OF PARTS TO BE ELIMINATED . . . . . . . .        0
+
+ NUMBER OF SOLID  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF QUAD   ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SHELL  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF TRUSS  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF BEAM   ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SPRING ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SH_3N  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF  SPH PARTICLES BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF RIGID LINKS. . . . . . . . . . . . . .        0
+
+ NUMBER OF NEW BOUNDARY CONDITIONS. . . . . . . .        0
+
+
+ TIME FOR FIRST ANIMATION-FILE PLOT . . . . . . .   0.000000    
+ TIME INTERVAL FOR ANIMATION-FILE PLOTS . . . . .   20.00000    
+ TIME TO STOP ANIMATION-FILE PLOTS. . . . . . . .  0.1000000E+21
+ SENSOR FOR ANIMATION-FILE PLOTS. . . . . . . . .          0
+ TIME INTERVAL FOR SENSOR ANIMATION-FILE PLOTS. .   0.000000    
+
+ VARIABLE SAVED ON ANIMATION FILES (1: YES) :
+      PLASTIC STRAIN. . . . . .     0
+      DENSITY     (SOLID ONLY).     0
+      SPECIFIC ENERGY . . . . .     0
+      HOURGLASS ENERGY. . . . .     0
+      TEMPERATURE (SOLID ONLY).     0
+      THICKNESS   (SHELL ONLY).     0
+      PRESSURE    (SOLID ONLY).     0
+      VON MISES . . . . . . . .     1
+      TURBULENT ENERGY (FLUID).     0
+      TURBULENT VISCOSITY(FLUID)    0
+      VORTICITY (FLUID) . . . .     0
+ NODAL VALUES SAVED ON ANIMATION FILES (1: YES) :
+      PRESSURE. . . . . . . . .     0
+      DENSITY . . . . . . . . .     0
+      TEMPERATURE . . . . . . .     0
+ VECTOR SAVED ON ANIMATION FILES (1: YES) :
+      VELOCITY VECTOR . . . . .     1
+      DISPLACEMENT VECTOR . . .     1
+      ACCELERATION VECTOR . . .     0
+      CONTACT FORCES. . . . . .     0
+      INTERNAL FORCES . . . . .     0
+      EXTERNAL FORCES . . . . .     0
+      SECTION RBY RWALL FORCES.     0
+      ROTATIONAL VELOCITY VECTOR    0
+      CONTACT PRESSURE (VECTORS)    0
+ SHELL TENSOR SAVED ON ANIMATION FILES (1: YES) :
+      MEMBRANE STRESS . . . . .     0
+      BENDING STRESS(MOMENT/T^2)    0
+      UPPER LAYER STRESS. . . .     0
+      LOWER LAYER STRESS. . . .     0
+      MEMBRANE STRAIN . . . . .     0
+      CURVATURE . . . . . . . .     0
+      UPPER LAYER STRAIN. . . .     0
+      LOWER LAYER STRAIN. . . .     0
+ NODAL MASS SAVED ON ANIMATION FILES (1: YES) :    0
+ KEEP DELETED ELEMENT (1: YES) :    0
+
+
+ 21/10/2026
+   CYCLE    TIME      TIME-STEP  ELEMENT          ERROR  I-ENERGY    K-ENERGY T  K-ENERGY R  EXT-WORK     MAS.ERR     TOTAL MASS  MASS ADDED
+       0   0.000      0.1000E-01 NODE       15995   0.0%   0.000      0.3326E-02   0.000       0.000      0.1538E+07  0.4440E+05  0.4440E+05
+     ANIMATION FILE: Dong2019_thinA001 WRITTEN
+    1000   10.00      0.1000E-01 NODE       43854 -99.9%  0.8196E-01  0.1466       0.000     -0.7593E-02  0.1540E+07  0.4444E+05  0.4444E+05
+    2000   20.00      0.1000E-01 NODE       37273 -99.9%  0.1327      0.2204       0.000     -0.1413E-01  0.1541E+07  0.4448E+05  0.4448E+05
+     ANIMATION FILE: Dong2019_thinA002 WRITTEN
+    3000   30.00      0.1000E-01 NODE        5891 -99.9%  0.1362      0.2942       0.000     -0.1886E-01  0.1542E+07  0.4451E+05  0.4451E+05
+    4000   40.00      0.1000E-01 NODE        3000 -99.9%  0.1120      0.3721       0.000     -0.2399E-01  0.1543E+07  0.4454E+05  0.4454E+05
+     ANIMATION FILE: Dong2019_thinA003 WRITTEN
+    5000   50.00      0.1000E-01 NODE       38118 -99.9%  0.1160      0.4339       0.000     -0.3449E-01  0.1545E+07  0.4458E+05  0.4458E+05
+    6000   60.00      0.1000E-01 NODE       36034 -99.9%  0.3660       1.097       0.000     -0.8409E-01  0.1546E+07  0.4462E+05  0.4462E+05
+     ANIMATION FILE: Dong2019_thinA004 WRITTEN
+    7000   70.00      0.1000E-01 NODE         330 -99.9%  0.5410       1.454       0.000     -0.1003      0.1547E+07  0.4465E+05  0.4465E+05
+    8000   80.00      0.1000E-01 NODE       40111 -99.9%  0.6191       1.784       0.000     -0.1150      0.1548E+07  0.4468E+05  0.4468E+05
+     ANIMATION FILE: Dong2019_thinA005 WRITTEN
+    9000   90.00      0.1000E-01 NODE        5313 -99.9%  0.6563       2.026       0.000     -0.1294      0.1550E+07  0.4473E+05  0.4473E+05
+   10000   100.0      0.1000E-01 NODE       37827 -99.9%  0.7216       2.247       0.000     -0.1486      0.1555E+07  0.4489E+05  0.4489E+05
+     ANIMATION FILE: Dong2019_thinA006 WRITTEN
+   11000   110.0      0.1000E-01 NODE       39897 -99.9%   1.052       3.046       0.000     -0.2005      0.1564E+07  0.4514E+05  0.4514E+05
+   12000   120.0      0.1000E-01 NODE         920 -99.9%   1.300       3.342       0.000     -0.2173      0.1569E+07  0.4529E+05  0.4529E+05
+     ANIMATION FILE: Dong2019_thinA007 WRITTEN
+   13000   130.0      0.1000E-01 NODE       41778 -99.9%   1.444       3.653       0.000     -0.2283      0.1571E+07  0.4536E+05  0.4536E+05
+   14000   140.0      0.1000E-01 NODE        3234 -99.9%   1.720       3.764       0.000     -0.2430      0.1573E+07  0.4540E+05  0.4540E+05
+     ANIMATION FILE: Dong2019_thinA008 WRITTEN
+   15000   150.0      0.1000E-01 NODE       35494 -99.9%   1.924       3.940       0.000     -0.2555      0.1574E+07  0.4543E+05  0.4543E+05
+   16000   160.0      0.1000E-01 NODE       33086 -99.9%   2.286       5.085       0.000     -0.3073      0.1576E+07  0.4549E+05  0.4549E+05
+     ANIMATION FILE: Dong2019_thinA009 WRITTEN
+   17000   170.0      0.1000E-01 NODE        7703 -99.9%   2.701       5.433       0.000     -0.3293      0.1579E+07  0.4558E+05  0.4558E+05
+   18000   180.0      0.1000E-01 NODE       15960 -99.9%   2.991       5.681       0.000     -0.3431      0.1582E+07  0.4567E+05  0.4567E+05
+     ANIMATION FILE: Dong2019_thinA010 WRITTEN
+   19000   190.0      0.1000E-01 NODE       40567 -99.9%   3.298       5.821       0.000     -0.3572      0.1589E+07  0.4587E+05  0.4587E+05
+   20000   200.0      0.1000E-01 NODE        3851 -99.9%   3.670       5.922       0.000     -0.3718      0.1593E+07  0.4599E+05  0.4599E+05
+     ANIMATION FILE: Dong2019_thinA011 WRITTEN
+   21000   210.0      0.1000E-01 NODE        8135 -99.9%   4.127       6.894       0.000     -0.4127      0.1597E+07  0.4610E+05  0.4610E+05
+   22000   220.0      0.1000E-01 NODE       39651 -99.9%   4.870       7.759       0.000     -0.4492      0.1600E+07  0.4618E+05  0.4618E+05
+     ANIMATION FILE: Dong2019_thinA012 WRITTEN
+   23000   230.0      0.1000E-01 NODE        5289 -99.9%   5.452       7.985       0.000     -0.4775      0.1604E+07  0.4629E+05  0.4629E+05
+   24000   240.0      0.1000E-01 NODE        1113 -99.9%   6.003       8.325       0.000     -0.5218      0.1608E+07  0.4641E+05  0.4641E+05
+     ANIMATION FILE: Dong2019_thinA013 WRITTEN
+   25000   250.0      0.1000E-01 NODE       40075 -99.9%   6.507       8.928       0.000     -0.5921      0.1609E+07  0.4644E+05  0.4644E+05
+   26000   260.0      0.1000E-01 NODE       33313 -99.9%   7.114       10.16       0.000     -0.6766      0.1611E+07  0.4651E+05  0.4651E+05
+     ANIMATION FILE: Dong2019_thinA014 WRITTEN
+   27000   270.0      0.1000E-01 NODE       35311 -99.9%   7.726       10.51       0.000     -0.7246      0.1614E+07  0.4658E+05  0.4658E+05
+   28000   280.0      0.1000E-01 NODE       41227 -99.9%   8.346       10.77       0.000     -0.7638      0.1617E+07  0.4668E+05  0.4668E+05
+     ANIMATION FILE: Dong2019_thinA015 WRITTEN
+   29000   290.0      0.1000E-01 NODE        1088 -99.9%   8.982       10.91       0.000     -0.7933      0.1620E+07  0.4677E+05  0.4677E+05
+   30000   300.0      0.1000E-01 NODE       40287 -99.9%   9.675       11.10       0.000     -0.8230      0.1623E+07  0.4685E+05  0.4685E+05
+     ANIMATION FILE: Dong2019_thinA016 WRITTEN
+   31000   310.0      0.1000E-01 NODE        2061 -99.9%   10.53       12.36       0.000     -0.8889      0.1625E+07  0.4689E+05  0.4689E+05
+   32000   320.0      0.1000E-01 NODE        8815 -99.9%   11.40       13.11       0.000     -0.9497      0.1625E+07  0.4692E+05  0.4692E+05
+     ANIMATION FILE: Dong2019_thinA017 WRITTEN
+   33000   330.0      0.1000E-01 NODE        3988 -99.9%   12.36       13.82       0.000      -1.031      0.1627E+07  0.4695E+05  0.4695E+05
+   34000   340.0      0.1000E-01 NODE       40075 -99.9%   13.26       14.43       0.000      -1.120      0.1628E+07  0.4698E+05  0.4698E+05
+     ANIMATION FILE: Dong2019_thinA018 WRITTEN
+   35000   350.0      0.1000E-01 NODE        1602 -99.9%   14.18       14.93       0.000      -1.205      0.1630E+07  0.4705E+05  0.4705E+05
+   36000   360.0      0.1000E-01 NODE       40203 -99.9%   15.18       16.31       0.000      -1.332      0.1632E+07  0.4710E+05  0.4710E+05
+     ANIMATION FILE: Dong2019_thinA019 WRITTEN
+   37000   370.0      0.1000E-01 NODE       40120 -99.9%   16.13       17.08       0.000      -1.415      0.1634E+07  0.4715E+05  0.4715E+05
+   38000   380.0      0.1000E-01 NODE       40285 -99.9%   17.04       17.93       0.000      -1.508      0.1636E+07  0.4721E+05  0.4721E+05
+     ANIMATION FILE: Dong2019_thinA020 WRITTEN
+   39000   390.0      0.1000E-01 NODE        1116 -99.9%   17.99       19.03       0.000      -1.613      0.1639E+07  0.4730E+05  0.4730E+05
+   40000   400.0      0.1000E-01 NODE        8869 -99.9%   19.03       19.76       0.000      -1.698      0.1646E+07  0.4751E+05  0.4751E+05
+     ANIMATION FILE: Dong2019_thinA021 WRITTEN
+   41000   410.0      0.1000E-01 NODE        8132 -99.9%   19.99       21.34       0.000      -1.804      0.1657E+07  0.4784E+05  0.4784E+05
+   42000   420.0      0.1000E-01 NODE        7611 -99.9%   21.01       22.59       0.000      -1.899      0.1672E+07  0.4825E+05  0.4825E+05
+     ANIMATION FILE: Dong2019_thinA022 WRITTEN
+   43000   430.0      0.1000E-01 NODE       24853 -99.9%   22.04       23.22       0.000      -1.982      0.1683E+07  0.4857E+05  0.4857E+05
+   44000   440.0      0.1000E-01 NODE       40283 -99.9%   23.10       23.69       0.000      -2.066      0.1694E+07  0.4889E+05  0.4889E+05
+     ANIMATION FILE: Dong2019_thinA023 WRITTEN
+   45000   450.0      0.1000E-01 NODE       40125 -99.9%   24.16       24.12       0.000      -2.145      0.1708E+07  0.4931E+05  0.4931E+05
+   46000   460.0      0.1000E-01 NODE       35171 -99.9%   25.31       24.72       0.000      -2.231      0.1727E+07  0.4984E+05  0.4984E+05
+     ANIMATION FILE: Dong2019_thinA024 WRITTEN
+   47000   470.0      0.1000E-01 NODE        8135 -99.9%   26.50       25.23       0.000      -2.326      0.1744E+07  0.5035E+05  0.5035E+05
+   48000   480.0      0.1000E-01 NODE       24132 -99.9%   27.69       25.78       0.000      -2.417      0.1759E+07  0.5077E+05  0.5077E+05
+     ANIMATION FILE: Dong2019_thinA025 WRITTEN
+   49000   490.0      0.1000E-01 NODE       17345 -99.9%   28.98       26.48       0.000      -2.519      0.1777E+07  0.5129E+05  0.5129E+05
+   50000   500.0      0.1000E-01 NODE        9237 -99.9%   30.24       27.36       0.000      -2.613      0.1795E+07  0.5181E+05  0.5181E+05
+     ANIMATION FILE: Dong2019_thinA026 WRITTEN
+   51000   510.0      0.1000E-01 NODE       17021 -99.9%   31.55       28.62       0.000      -2.718      0.1814E+07  0.5235E+05  0.5235E+05
+   52000   520.0      0.1000E-01 NODE       35566 -99.9%   32.94       30.80       0.000      -2.822      0.1837E+07  0.5303E+05  0.5303E+05
+     ANIMATION FILE: Dong2019_thinA027 WRITTEN
+   53000   530.0      0.1000E-01 NODE       43907 -99.9%   34.45       33.96       0.000      -2.896      0.1855E+07  0.5354E+05  0.5354E+05
+   54000   540.0      0.1000E-01 NODE        8083 -99.9%   36.09       37.15       0.000      -2.944      0.1871E+07  0.5400E+05  0.5400E+05
+     ANIMATION FILE: Dong2019_thinA028 WRITTEN
+   CYCLE    TIME      TIME-STEP  ELEMENT          ERROR  I-ENERGY    K-ENERGY T  K-ENERGY R  EXT-WORK     MAS.ERR     TOTAL MASS  MASS ADDED
+   55000   550.0      0.1000E-01 NODE        3147 -99.9%   37.86       40.02       0.000      -2.970      0.1881E+07  0.5429E+05  0.5429E+05
+   56000   560.0      0.1000E-01 NODE        5541 -99.9%   39.65       42.06       0.000      -2.992      0.1887E+07  0.5447E+05  0.5447E+05
+     ANIMATION FILE: Dong2019_thinA029 WRITTEN
+   57000   570.0      0.1000E-01 NODE       32725 -99.9%   41.84       44.10       0.000      -3.013      0.1899E+07  0.5481E+05  0.5481E+05
+   58000   580.0      0.1000E-01 NODE       28438 -99.9%   43.81       46.49       0.000      -3.030      0.1911E+07  0.5517E+05  0.5517E+05
+     ANIMATION FILE: Dong2019_thinA030 WRITTEN
+   59000   590.0      0.1000E-01 NODE        8889 -99.9%   45.78       49.45       0.000      -3.056      0.1928E+07  0.5564E+05  0.5564E+05
+   60000   600.0      0.1000E-01 NODE       12295 -99.9%   48.04       52.92       0.000      -3.093      0.1941E+07  0.5603E+05  0.5603E+05
+     ANIMATION FILE: Dong2019_thinA031 WRITTEN
+   61000   610.0      0.1000E-01 NODE       37583 -99.9%   51.13       54.71       0.000      -3.124      0.1965E+07  0.5672E+05  0.5672E+05
+   62000   620.0      0.1000E-01 NODE        1973 -99.9%   54.28       56.47       0.000      -3.165      0.2011E+07  0.5804E+05  0.5804E+05
+     ANIMATION FILE: Dong2019_thinA032 WRITTEN
+   63000   630.0      0.1000E-01 NODE        9213 -99.9%   57.28       57.71       0.000      -3.201      0.2071E+07  0.5979E+05  0.5979E+05
+   64000   640.0      0.1000E-01 NODE       31797 -99.9%   60.13       58.66       0.000      -3.233      0.2119E+07  0.6118E+05  0.6118E+05
+     ANIMATION FILE: Dong2019_thinA033 WRITTEN
+   65000   650.0      0.1000E-01 NODE       12257 -99.9%   62.55       59.83       0.000      -3.273      0.2160E+07  0.6236E+05  0.6236E+05
+   66000   660.0      0.1000E-01 NODE       43004 -99.9%   64.76       59.39       0.000      -3.292      0.2194E+07  0.6333E+05  0.6333E+05
+     ANIMATION FILE: Dong2019_thinA034 WRITTEN
+   67000   670.0      0.1000E-01 NODE        9637 -99.9%   66.99       59.16       0.000      -3.313      0.2221E+07  0.6411E+05  0.6411E+05
+   68000   680.0      0.1000E-01 NODE       32682 -99.9%   69.82       58.72       0.000      -3.333      0.2240E+07  0.6467E+05  0.6467E+05
+     ANIMATION FILE: Dong2019_thinA035 WRITTEN
+   69000   690.0      0.1000E-01 NODE       36852 -99.9%   71.99       58.13       0.000      -3.356      0.2254E+07  0.6507E+05  0.6507E+05
+   70000   700.0      0.1000E-01 NODE       28465 -99.9%   74.72       57.45       0.000      -3.373      0.2262E+07  0.6529E+05  0.6529E+05
+     ANIMATION FILE: Dong2019_thinA036 WRITTEN
+   71000   710.0      0.1000E-01 NODE       32754 -99.9%   76.71       56.39       0.000      -3.378      0.2265E+07  0.6537E+05  0.6537E+05
+   72000   720.0      0.1000E-01 NODE       30624 -99.9%   79.27       55.47       0.000      -3.383      0.2269E+07  0.6550E+05  0.6550E+05
+     ANIMATION FILE: Dong2019_thinA037 WRITTEN
+   73000   730.0      0.1000E-01 NODE        4936 -99.9%   82.68       54.31       0.000      -3.390      0.2281E+07  0.6583E+05  0.6583E+05
+   74000   740.0      0.1000E-01 NODE       13121 -99.9%   85.79       53.29       0.000      -3.399      0.2290E+07  0.6611E+05  0.6611E+05
+     ANIMATION FILE: Dong2019_thinA038 WRITTEN
+   75000   750.0      0.1000E-01 NODE       45019 -99.9%   89.01       52.37       0.000      -3.409      0.2302E+07  0.6645E+05  0.6645E+05

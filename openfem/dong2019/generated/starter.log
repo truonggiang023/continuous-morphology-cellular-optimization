@@ -1,0 +1,82 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                        OpenCourant Starter                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**                    Linux 64 bits, GNU compiler                     **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+** CommitID: cb760c206e346eff12161a2268b134ef9d48a4ef                 **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+
+ .. UNITS SYSTEM                                                                         
+ .. CONTROL VARIABLES                                                                    
+ .. STARTER RUNNING ON    4 THREADS
+ .. FUNCTIONS & TABLES
+ .. MATERIALS                                                                            
+ .. NODES                                                                                
+ .. PROPERTIES                                                                           
+ .. 3D SOLID ELEMENTS                                                                    
+ .. SUBSETS
+ .. ELEMENT GROUPS
+ .. PART GROUPS
+ .. SURFACES 
+ .. NODE GROUP
+ .. BOUNDARY CONDITIONS                                                                  
+ .. IMPOSED VELOCITIES                                                                   
+ .. DOMAIN DECOMPOSITION
+ .. ELEMENT GROUPS                                                                       
+ .. INTERFACES                                                                           
+ .. INTERFACE BUFFER INITIALIZATION                                                      
+ .. RIGID WALLS                                                                          
+ .. RETURNS TO DOMAIN DECOMPOSITION FOR OPTIMIZATION
+ .. DOMAIN DECOMPOSITION
+ .. ELEMENT GROUPS                                                                       
+ .. INTERFACES                                                                           
+ .. INTERFACE BUFFER INITIALIZATION                                                      
+ .. RIGID WALLS                                                                          
+ .. ELEMENT BUFFER INITIALIZATION                                                        
+
+WARNING ID :    312
+** INCOMPATIBLE KINEMATIC CONDITIONS IN MODEL
+DESCRIPTION :  
+    3972 INCOMPATIBLE KINEMATIC CONDITIONS IN MODEL
+ .. GEOMETRY PLOT FILE                                                                   
+ .. PARALLEL RESTART FILES GENERATION                                                    
+  
+------------------------------------------------------------------------
+  
+                   ** COMPUTE TIME INFORMATION **
+  
+ EXECUTION STARTED      :      2026/10/21  03:09:23
+ EXECUTION COMPLETED    :      2026/10/21  03:09:25
+  
+ ELAPSED TIME...........=          1.89 s
+                               00:00:01
+  
+------------------------------------------------------------------------
+
+
+
+     TERMINATION WITH WARNING           
+     ------------------                                                                  
+              0 ERROR(S)            
+              1 WARNING(S)          
+
+
+
+
+PLEASE CHECK LISTING FILE FOR FURTHER DETAILS
+
+

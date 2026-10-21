@@ -1,0 +1,43 @@
+name: Dong 2019 OpenCourant validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codespaces-opencourant
+    paths:
+      - ".github/workflows/dong2019-validation.yml"
+      - "openfem/dong2019/**"
+      - "scripts/setup_codespace.sh"
+      - "scripts/env_opencourant.sh"
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OpenCourant and Gmsh
+        run: bash scripts/setup_codespace.sh
+
+      - name: Run Dong thin-wall baseline
+        env:
+          OC_THREADS: "4"
+        run: bash openfem/dong2019/run_validation.sh
+
+      - name: Show model and validation summaries
+        if: always()
+        run: |
+          test -f openfem/dong2019/generated/model_report.json && cat openfem/dong2019/generated/model_report.json || true
+          test -f openfem/dong2019/generated/validation_summary.json && cat openfem/dong2019/generated/validation_summary.json || true
+          test -f openfem/dong2019/generated/starter.log && tail -n 120 openfem/dong2019/generated/starter.log || true
+          test -f openfem/dong2019/generated/engine.log && tail -n 120 openfem/dong2019/generated/engine.log || true
+
+      - name: Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dong2019-opencourant-validation
+          path: openfem/dong2019/generated/
+          if-no-files-found: warn

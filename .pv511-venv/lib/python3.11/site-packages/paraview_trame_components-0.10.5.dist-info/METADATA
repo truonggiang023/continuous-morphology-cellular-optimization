@@ -1,0 +1,148 @@
+Metadata-Version: 2.3
+Name: paraview-trame-components
+Version: 0.10.5
+Summary: Macro components for ParaView
+Author-email: Sebastien Jourdain <sebastien.jourdain@kitware.com>
+Maintainer-email: Sebastien Jourdain <sebastien.jourdain@kitware.com>
+License: Copyright 2024 Kitware Inc.
+        
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+        
+            http://www.apache.org/licenses/LICENSE-2.0
+        
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+License-File: LICENSE
+Keywords: components,paraview,trame,web
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Requires-Python: >=3.10
+Requires-Dist: trame
+Requires-Dist: trame-components
+Requires-Dist: trame-vtk
+Requires-Dist: trame-vuetify
+Provides-Extra: ci
+Requires-Dist: build; extra == 'ci'
+Requires-Dist: pre-commit; extra == 'ci'
+Provides-Extra: dev
+Requires-Dist: pre-commit; extra == 'dev'
+Requires-Dist: python-semantic-release; extra == 'dev'
+Requires-Dist: ruff; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# ParaView Trame Components
+
+This project gather helper classes that can be used with ParaView to create quickly and simply web solution for interacting with your data.
+
+## Usage example
+
+The `./examples/` directory gather simple Python scripts using ParaView and exposing them as standalone trame applications.
+
+## Virtual Environment setup
+
+Since ParaView does not come with trame, you need to create a virtual environment that brings all the missing dependency for paraview to use.
+
+```bash
+# Create and activate venv
+python3.10 -m venv .venv
+source .venv/bin/activate
+
+# Install published package
+pip install paraview-trame-components
+
+# Let ParaView know about the location of that venv
+export PV_VENV=$PWD/.venv
+```
+
+## Running examples
+
+```bash
+# Adjust path to point to your ParaView executable
+export PVPYTHON=/Applications/ParaView-5.12.0.app/Contents/bin/pvpython
+
+# Run the scripts
+$PVPYTHON --force-offscreen-rendering ./examples/cone.py
+$PVPYTHON --force-offscreen-rendering ./examples/cone-with-slider.py
+$PVPYTHON --force-offscreen-rendering ./examples/wavelet-contour-state.py
+$PVPYTHON --force-offscreen-rendering ./examples/pipeline.py
+$PVPYTHON --force-offscreen-rendering ./examples/selection.py
+```
+
+## Scripts structure
+
+Each script add `import paraview.web.venv` at the top to enable your virtual environment via the `PV_VENV` environment variable.
+
+Then we use the ptc (ParaView Trame Components) package to quickly create a trame application to view the data.
+
+The `wavelet-contour-state.py` script was created by ParaView when saving its state as a Python file. Then we added few lines at the end to create an interactive web viewer.
+
+## Check code
+
+```bash
+# one time
+pip install ".[dev]"
+pre-commit install
+
+# check but automatic on commit
+pre-commit run --all-files
+```
+
+## ParaView code example
+
+```python
+import paraview.web.venv
+from ptc import Viewer
+from paraview import simple
+
+cone = simple.Cone()
+simple.Show()
+simple.Render()
+
+# Make it a web app
+web_app = Viewer()
+web_app.start()
+```
+
+And if you want to add some UI
+
+```python
+import paraview.web.venv
+from paraview import simple
+
+from ptc import Viewer
+from trame.widgets.vuetify3 import VSlider
+
+cone = simple.Cone()
+simple.Show()
+simple.Render()
+
+# Make it a web app
+web_app = Viewer()
+
+with web_app.side_top:
+    VSlider(
+        v_model=("resolution", 6),
+        min=3, max=60, step=1,
+    )
+
+@web_app.state.change("resolution")
+def on_resolution_change(resolution, **kwargs):
+    cone.Resolution = resolution
+    web_app.update()
+
+web_app.start()
+```
+
+## Example in image
+
+| ![Code](https://raw.githubusercontent.com/Kitware/paraview-trame-components/main/.web-app-input.png) | ![Web App](https://raw.githubusercontent.com/Kitware/paraview-trame-components/main/.web-app-output.png) |
+| :-------------------------: |  :----------------------------: | 
+| Write some python code      |  And get a web app              | 
