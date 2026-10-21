@@ -33,6 +33,15 @@ def audit(case: Path):
     record("crosshead velocity, mm/min",round(velocity,3),"paper FE: 2 mm/min",
            abs(velocity-2)<0.02,
            "Accelerated runs require KE/IE and rate-independence checks.")
+    starter=case/"starter.log"
+    if starter.exists():
+        starter_text=starter.read_text(errors="replace")
+        counts=[int(m) for m in re.findall(r"(\\d+) INCOMPATIBLE KINEMATIC CONDITIONS",starter_text)]
+        conflicts=max(counts, default=0)
+        record("incompatible kinematic constraints",conflicts,"0",conflicts==0,
+               "Resolve WARNING 312 before trusting deformation or reaction loads.")
+    else:
+        record("starter log exists",False,"True",False,"Run Starter and save starter.log.")
     engine=case/"engine.log"
     if engine.exists():
         log=engine.read_text(errors="replace")
