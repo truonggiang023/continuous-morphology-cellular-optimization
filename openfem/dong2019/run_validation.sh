@@ -22,6 +22,12 @@ cd "$CASE_DIR"
 echo "==> Starter"
 "$STARTER" -i Dong2019_thin_0000.rad -nt "${OC_THREADS:-4}" -np 1 2>&1 | tee starter.log
 
+if grep -Eq "[0-9]+ INCOMPATIBLE KINEMATIC CONDITIONS" starter.log; then
+  echo "ERROR: Starter reports incompatible kinematic conditions; will not run engine." >&2
+  python3 "$REPO_ROOT/openfem/dong2019/physics_audit.py" --case "$CASE_DIR" || true
+  exit 4
+fi
+
 echo "==> Engine"
 "$ENGINE" -i Dong2019_thin_0001.rad -nt "${OC_THREADS:-4}" 2>&1 | tee engine.log
 
