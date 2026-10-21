@@ -441,6 +441,7 @@ def write_engine(path, target_dt_ms=None):
     path.write_text("\n".join(out)+"\n")
 
 def main():
+    global STEP_TIME_MS
     ap=argparse.ArgumentParser()
     ap.add_argument("--out",default="openfem/dong2019/generated")
     ap.add_argument("--lc",type=float,default=None)
@@ -451,7 +452,6 @@ def main():
     args=ap.parse_args()
     if args.step_time_ms <= 0:
         ap.error("--step-time-ms must be positive")
-    global STEP_TIME_MS
     STEP_TIME_MS = args.step_time_ms
     outdir=Path(args.out); outdir.mkdir(parents=True,exist_ok=True)
     msh,mesh_report,bounds,meta=choose_mesh(outdir,args.lc)
