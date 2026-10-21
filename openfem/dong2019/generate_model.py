@@ -424,7 +424,9 @@ def write_starter(path, nodes, hexes, front, back, bounds):
             "/TH/NODE/2","Top_wall_motion","DEF",f"{master_top:10d}{0:10d}",
             "/TH/PART/3","Core_energies","DEF",fmt_ints([1]),"/END"]
     path.write_text("\n".join(out)+"\n")
-    return {"master_bottom":master_bottom,"master_top":master_top,"compression_displacement_mm":disp,\n            "oop_constraint_nodes":len(oop),"oop_excluded_near_platens":excluded_oop,\n            "oop_bc_scope":"INTERIOR ONLY; provisional workaround for RWALL/BCS overlap"}
+    return {"master_bottom": master_bottom, "master_top": master_top, "compression_displacement_mm": disp,
+            "oop_constraint_nodes": len(oop), "oop_excluded_near_platens": excluded_oop,
+            "oop_bc_scope": "INTERIOR ONLY; provisional workaround for RWALL/BCS overlap"}
 
 def write_engine(path, target_dt_ms=None):
     out=["#RADIOSS ENGINE","/RUN/Dong2019_thin/1/",f"{STEP_TIME_MS:.10g}",
