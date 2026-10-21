@@ -35,7 +35,7 @@ N_COLS = 5
 CORE_HEIGHT_CENTERLINE = 8.0 * N_ROWS - T
 DEPTH = 25.0
 LAMBDA_M = 1.0
-N_Z = 4
+N_Z = 2
 TARGET_HEX = 10068
 PAPER_AREA = 76.0 * 25.0
 COMPRESSION_STRAIN = 0.80
@@ -230,7 +230,8 @@ def write_geo(path: Path, lc: float):
         f"Mesh.CharacteristicLengthMax = {lc:.12g};",
         "Mesh.CharacteristicLengthFromCurvature = 0;",
         "Mesh.CharacteristicLengthExtendFromBoundary = 1;",
-        "Mesh.Algorithm = 6;",
+        "Mesh.Algorithm = 8;",
+        "Mesh.Smoothing = 20;",
         "Mesh.RecombineAll = 1;",
         "Mesh.RecombinationAlgorithm = 3;",
         "Mesh.SaveAll = 1;",
@@ -299,20 +300,25 @@ def quad_quality(nodes, quads):
     return {"min_scaled_jacobian_2d":min_sj,"max_edge_aspect_2d":max_aspect,"nonpositive_corners":inverted}
 
 def choose_mesh(work: Path, requested_lc):
-    candidates = [requested_lc] if requested_lc else [0.52,0.56,0.59,0.62,0.66,0.70]
+    candidates = [requested_lc] if requested_lc else [0.55,0.58,0.60,0.62,0.65,0.68]
     trials=[]; best=None
     for lc in candidates:
         geo=work/f"core_lc_{lc:.2f}.geo"; msh=work/f"core_lc_{lc:.2f}.msh"
-        bounds,meta=write_geo(geo,lc)
-        run_gmsh(geo,msh)
-        nodes,quads,types=read_msh2(msh)
-        nhex=len(quads)*N_Z
-        q=quad_quality(nodes,quads)
-        trial={"lc":lc,"quads":len(quads),"hex_estimate":nhex,"types":types,**q}
-        trials.append(trial)
-        score=abs(nhex-TARGET_HEX)/TARGET_HEX + 0.15*abs(lc-0.60)/0.60
-        if q["nonpositive_corners"]: score += 100
-        if best is None or score<best[0]: best=(score,msh,trial,bounds,meta)
+        try:
+            bounds,meta=write_geo(geo,lc)
+            run_gmsh(geo,msh)
+            nodes,quads,types=read_msh2(msh)
+            nhex=len(quads)*N_Z
+            q=quad_quality(nodes,quads)
+            trial={"lc":lc,"quads":len(quads),"hex_estimate":nhex,"types":types,**q}
+            trials.append(trial)
+            score=abs(nhex-TARGET_HEX)/TARGET_HEX + 0.15*abs(lc-0.60)/0.60
+            if q["nonpositive_corners"]: score += 100
+            if best is None or score<best[0]: best=(score,msh,trial,bounds,meta)
+        except Exception as exc:
+            trials.append({"lc":lc,"status":"rejected","reason":str(exc)})
+    if best is None:
+        raise RuntimeError("No all-quad mesh candidate was produced: " + json.dumps(trials))
     return best[1], {"trials":trials,"selected":best[2]}, best[3], best[4]
 
 def extrude_hex(nodes2d, quads):
