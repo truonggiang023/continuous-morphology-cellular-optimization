@@ -203,22 +203,28 @@ def add_polygon_geo(lines, pts, pid, lid, loopid):
     return pid, lid, loopid + 1
 
 def write_geo(path: Path, lc: float):
-    surfaces, bounds, meta = geometry_primitives()
-    lines = ['SetFactory("OpenCASCADE");']
-    pid = lid = loopid = sid = 1
-    surface_ids = []
-    for outer, inner in surfaces:
-        outer_loop = loopid
-        pid, lid, loopid = add_polygon_geo(lines, outer, pid, lid, loopid)
-        if inner is None:
-            lines.append(f"Plane Surface({sid}) = {{{outer_loop}}};")
-        else:
-            inner_loop = loopid
-            pid, lid, loopid = add_polygon_geo(lines, inner, pid, lid, loopid)
-            lines.append(f"Plane Surface({sid}) = {{{outer_loop},{inner_loop}}};")
-        surface_ids.append(sid); sid += 1
-    first, rest = surface_ids[0], surface_ids[1:]
-    lines.append(f"core[] = BooleanUnion{{ Surface{{{first}}}; Delete; }}{{ Surface{{{','.join(map(str,rest))}}}; Delete; }};")
+    """Write the already-unioned exact Dong section to Gmsh.
+
+    The original version asked OpenCASCADE to Boolean-union 54 overlapping
+    thin surfaces. Gmsh/OpenCASCADE can segfault on those coincident sharp
+    junctions. The committed JSON is the exact polygonal union of that same
+    geometry (area = 407.645502 mm^2), so meshing starts from a single clean
+    surface with 50 holes and does not alter the physical geometry.
+    """
+    section_file = Path(__file__).with_name("dong2019_section.json")
+    data = json.loads(section_file.read_text())
+    loops = [data["exterior"]] + data["holes"]
+
+    lines = []
+    pid = lid = loopid = 1
+    loop_ids = []
+    for j, raw in enumerate(loops):
+        pts = orient([(float(x), float(y)) for x, y in raw], ccw=(j == 0))
+        this_loop = loopid
+        pid, lid, loopid = add_polygon_geo(lines, pts, pid, lid, loopid)
+        loop_ids.append(this_loop)
+
+    lines.append(f"Plane Surface(1) = {{{','.join(map(str, loop_ids))}}};")
     lines += [
         f"Mesh.CharacteristicLengthMin = {min(0.30,lc):.12g};",
         f"Mesh.CharacteristicLengthMax = {lc:.12g};",
@@ -229,9 +235,19 @@ def write_geo(path: Path, lc: float):
         "Mesh.RecombinationAlgorithm = 3;",
         "Mesh.SubdivisionAlgorithm = 1;",
         "Mesh.SaveAll = 1;",
-        'Physical Surface("CORE") = {core[]};',
+        'Physical Surface("CORE") = {1};',
     ]
     path.write_text("\n".join(lines) + "\n")
+
+    bounds = tuple(float(v) for v in data["bounds_mm"])
+    cell_h = CORE_HEIGHT_CENTERLINE / N_ROWS
+    half_h = 0.5 * cell_h
+    dx_ref = math.sqrt(L_BEVEL ** 2 - half_h ** 2)
+    waist = LAMBDA_M * dx_ref
+    meta = dict(cell_h=cell_h, half_h=half_h, dx_ref=dx_ref,
+                waist_shift=waist, pitch_x=L1 + L2 - 2.0 * waist,
+                actual_inclined=math.hypot(half_h, waist),
+                exact_section_area_mm2=float(data["area_mm2"]))
     return bounds, meta
 
 def run_gmsh(geo: Path, msh: Path):
