@@ -36,7 +36,7 @@ def audit(case: Path):
     starter=case/"starter.log"
     if starter.exists():
         starter_text=starter.read_text(errors="replace")
-        counts=[int(m) for m in re.findall(r"(\\d+) INCOMPATIBLE KINEMATIC CONDITIONS",starter_text)]
+        counts=[int(m) for m in re.findall(r"(\d+) INCOMPATIBLE KINEMATIC CONDITIONS",starter_text)]
         conflicts=max(counts, default=0)
         record("incompatible kinematic constraints",conflicts,"0",conflicts==0,
                "Resolve WARNING 312 before trusting deformation or reaction loads.")
