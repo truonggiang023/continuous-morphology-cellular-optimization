@@ -391,7 +391,17 @@ def write_starter(path, nodes, hexes, front, back, bounds):
             f"{1:10d}{4:10d}{0:10d}{0:10d}{0:10d}{0:10d}{0:10d}{2:10d}{0.0:20.10g}",
             fmt_floats([1.1,0.05,0.10,0.0,0.0]),fmt_floats([0.0,0.0,0.0,0.0,0.0]),fmt_ints([0,0,0])]
 
-    # Radioss /RWALL is a kinematic condition, not a penalty-only contact.\n    # Nodes simultaneously in the platen RWALL search zone and U3/BCS can\n    # trigger WARNING 312. This provisional diagnostic removes U3 only near\n    # platens, retaining plane restraint in the interior. Validate z-motion\n    # and compare with a penalty-contact platen before claiming equivalence.\n    search=2.0\n    oop_candidates=front+back\n    oop=[nid for nid in oop_candidates\n         if (ymin + search + 1.0e-6) < nodes[nid][1] < (ymax - search - 1.0e-6)]\n    excluded_oop=len(oop_candidates)-len(oop)\n    out += ["/BCS/1","Core_out_of_plane_U3_0",f"   001 000{0:10d}{10:10d}","/GRNOD/NODE/10","Core_front_back_z_faces"]
+    # Radioss /RWALL is a kinematic condition, not a penalty-only contact.
+    # Nodes simultaneously in the platen RWALL search zone and U3/BCS can
+    # trigger WARNING 312. This provisional diagnostic removes U3 only near
+    # platens, retaining plane restraint in the interior. Validate z-motion
+    # and compare with a penalty-contact platen before claiming equivalence.
+    search=2.0
+    oop_candidates=front+back
+    oop=[nid for nid in oop_candidates
+         if (ymin + search + 1.0e-6) < nodes[nid][1] < (ymax - search - 1.0e-6)]
+    excluded_oop=len(oop_candidates)-len(oop)
+    out += ["/BCS/1","Core_out_of_plane_U3_0",f"   001 000{0:10d}{10:10d}","/GRNOD/NODE/10","Core_front_back_z_faces"]
     out += [fmt_ints(c) for c in chunks(oop)]
     out += ["/BCS/2","Bottom_wall_master_fixed",f"   111 000{0:10d}{11:10d}","/GRNOD/NODE/11","Bottom_wall_master",fmt_ints([master_bottom])]
     out += ["/BCS/3","Top_wall_master_XZ_fixed",f"   101 000{0:10d}{12:10d}","/GRNOD/NODE/12","Top_wall_master",fmt_ints([master_top])]
