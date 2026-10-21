@@ -190,10 +190,10 @@ def geometry_primitives():
                 pitch_x=pitch, actual_inclined=math.hypot(half_h, waist))
     return surfaces, (xmin, ymin, xmax, ymax), meta
 
-def add_polygon_geo(lines, pts, pid, lid, loopid):
+def add_polygon_geo(lines, pts, pid, lid, loopid, lc):
     point_ids = []
     for x, y in pts:
-        lines.append(f"Point({pid}) = {{{x:.12g}, {y:.12g}, 0, 1.0}};")
+        lines.append(f"Point({pid}) = {{{x:.12g}, {y:.12g}, 0, {lc:.12g}}};")
         point_ids.append(pid); pid += 1
     curve_ids = []
     for i in range(len(point_ids)):
@@ -221,12 +221,12 @@ def write_geo(path: Path, lc: float):
     for j, raw in enumerate(loops):
         pts = orient([(float(x), float(y)) for x, y in raw], ccw=(j == 0))
         this_loop = loopid
-        pid, lid, loopid = add_polygon_geo(lines, pts, pid, lid, loopid)
+        pid, lid, loopid = add_polygon_geo(lines, pts, pid, lid, loopid, lc)
         loop_ids.append(this_loop)
 
     lines.append(f"Plane Surface(1) = {{{','.join(map(str, loop_ids))}}};")
     lines += [
-        f"Mesh.CharacteristicLengthMin = {min(0.30,lc):.12g};",
+        f"Mesh.CharacteristicLengthMin = {lc:.12g};",
         f"Mesh.CharacteristicLengthMax = {lc:.12g};",
         "Mesh.CharacteristicLengthFromCurvature = 0;",
         "Mesh.CharacteristicLengthExtendFromBoundary = 1;",
@@ -301,11 +301,10 @@ def quad_quality(nodes, quads):
     return {"min_scaled_jacobian_2d":min_sj,"max_edge_aspect_2d":max_aspect,"nonpositive_corners":inverted}
 
 def choose_mesh(work: Path, requested_lc):
-    # Mesh.SubdivisionAlgorithm=1 halves the characteristic edge length
-    # in the final all-quad mesh. Parent lc ~1.1-1.3 mm therefore gives
-    # final in-plane resolution ~0.55-0.65 mm, close to Dong's reported
-    # 12/19=0.632 mm horizontal and 5.66/10=0.566 mm bevel resolutions.
-    candidates = [requested_lc] if requested_lc else [1.05,1.10,1.15,1.20,1.25,1.30]
+    # The original GEO hard-coded 1.0 mm for every Point, overriding the
+    # trial characteristic lengths and producing an identical mesh each time.
+    # Sample different boundary resolutions; verify CAD/mesh area independently.
+    candidates = [requested_lc] if requested_lc else [0.20,0.30,0.45,0.60]
     trials=[]; best=None
     for lc in candidates:
         geo=work/f"core_lc_{lc:.2f}.geo"; msh=work/f"core_lc_{lc:.2f}.msh"
@@ -315,18 +314,27 @@ def choose_mesh(work: Path, requested_lc):
             nodes,quads,types=read_msh2(msh)
             nhex=len(quads)*N_Z
             q=quad_quality(nodes,quads)
+            mesh_area=sum(abs(signed_area([(nodes[n][0],nodes[n][1]) for n in quad])) for quad in quads)
+            ref_area=float(meta["exact_section_area_mm2"])
+            area_error=abs(mesh_area/ref_area-1)
             trial={"parent_lc":lc,"estimated_final_h":0.5*lc,
+                   "mesh_area_mm2":mesh_area,"CAD_area_mm2":ref_area,
+                   "area_error_pct":100.0*area_error,
                    "quads":len(quads),"hex_estimate":nhex,"types":types,**q}
             trials.append(trial)
             final_h = 0.5 * lc
             target_h = 0.5 * (L1 / 19.0 + L_BEVEL / 10.0)
             score=abs(nhex-TARGET_HEX)/TARGET_HEX + 0.15*abs(final_h-target_h)/target_h
-            if q["nonpositive_corners"]: score += 100
+            if q["nonpositive_corners"] or area_error > 0.02 or q["min_scaled_jacobian_2d"] < 0.2:
+                trial["status"]="rejected: geometric validity check"
+                continue
+            trial["status"]="accepted for physics preflight"
             if best is None or score<best[0]: best=(score,msh,trial,bounds,meta)
         except Exception as exc:
             trials.append({"lc":lc,"status":"rejected","reason":str(exc)})
+    (work/"mesh_candidate_report.json").write_text(json.dumps(trials,indent=2)+"\n")
     if best is None:
-        raise RuntimeError("No all-quad mesh candidate was produced: " + json.dumps(trials))
+        raise RuntimeError("No geometrically acceptable mesh. See mesh_candidate_report.json; "+json.dumps(trials))
     return best[1], {"trials":trials,"selected":best[2]}, best[3], best[4]
 
 def extrude_hex(nodes2d, quads):
