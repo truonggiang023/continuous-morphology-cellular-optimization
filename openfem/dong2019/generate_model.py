@@ -234,6 +234,10 @@ def write_geo(path: Path, lc: float):
         "Mesh.Smoothing = 20;",
         "Mesh.RecombineAll = 1;",
         "Mesh.RecombinationAlgorithm = 3;",
+        // Gmsh full-quad subdivision: any residual TRI3 cells are converted
+        // conformingly to QUAD4. Existing quads are subdivided too. Therefore
+        // choose the parent lc at about 2x the desired final edge length.
+        "Mesh.SubdivisionAlgorithm = 1;",
         "Mesh.SaveAll = 1;",
         'Physical Surface("CORE") = {1};',
     ]
@@ -300,7 +304,11 @@ def quad_quality(nodes, quads):
     return {"min_scaled_jacobian_2d":min_sj,"max_edge_aspect_2d":max_aspect,"nonpositive_corners":inverted}
 
 def choose_mesh(work: Path, requested_lc):
-    candidates = [requested_lc] if requested_lc else [0.55,0.58,0.60,0.62,0.65,0.68]
+    # Mesh.SubdivisionAlgorithm=1 halves the characteristic edge length
+    # in the final all-quad mesh. Parent lc ~1.1-1.3 mm therefore gives
+    # final in-plane resolution ~0.55-0.65 mm, close to Dong's reported
+    # 12/19=0.632 mm horizontal and 5.66/10=0.566 mm bevel resolutions.
+    candidates = [requested_lc] if requested_lc else [1.05,1.10,1.15,1.20,1.25,1.30]
     trials=[]; best=None
     for lc in candidates:
         geo=work/f"core_lc_{lc:.2f}.geo"; msh=work/f"core_lc_{lc:.2f}.msh"
@@ -310,9 +318,12 @@ def choose_mesh(work: Path, requested_lc):
             nodes,quads,types=read_msh2(msh)
             nhex=len(quads)*N_Z
             q=quad_quality(nodes,quads)
-            trial={"lc":lc,"quads":len(quads),"hex_estimate":nhex,"types":types,**q}
+            trial={"parent_lc":lc,"estimated_final_h":0.5*lc,
+                   "quads":len(quads),"hex_estimate":nhex,"types":types,**q}
             trials.append(trial)
-            score=abs(nhex-TARGET_HEX)/TARGET_HEX + 0.15*abs(lc-0.60)/0.60
+            final_h = 0.5 * lc
+            target_h = 0.5 * (L1 / 19.0 + L_BEVEL / 10.0)
+            score=abs(nhex-TARGET_HEX)/TARGET_HEX + 0.15*abs(final_h-target_h)/target_h
             if q["nonpositive_corners"]: score += 100
             if best is None or score<best[0]: best=(score,msh,trial,bounds,meta)
         except Exception as exc:
