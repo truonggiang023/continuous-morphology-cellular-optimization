@@ -235,12 +235,6 @@ def write_geo(path: Path, lc: float):
         "Mesh.RecombinationAlgorithm = 3;",
         "Mesh.SubdivisionAlgorithm = 1;",
         "Mesh.Smoothing = 20;",
-        "Mesh.RecombineAll = 1;",
-        "Mesh.RecombinationAlgorithm = 3;",
-        // Gmsh full-quad subdivision: any residual TRI3 cells are converted
-        // conformingly to QUAD4. Existing quads are subdivided too. Therefore
-        // choose the parent lc at about 2x the desired final edge length.
-        "Mesh.SubdivisionAlgorithm = 1;",
         "Mesh.SaveAll = 1;",
         'Physical Surface("CORE") = {1};',
     ]
