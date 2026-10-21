@@ -1,9 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo "==> Preparing system package sources"
+
+# Some Codespaces/devcontainer images carry an old Yarn APT source whose
+# signing key has expired or is missing. Yarn is unrelated to this project,
+# but that broken source makes *every* apt-get update fail before we can
+# install Gmsh. Disable only that unrelated source when present.
+for src in /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources; do
+  [[ -f "$src" ]] || continue
+  if grep -qs "dl.yarnpkg.com" "$src"; then
+    echo "==> Disabling unrelated broken Yarn APT source: $src"
+    sudo mv "$src" "$src.disabled"
+  fi
+done
+
 echo "==> Installing system dependencies"
 sudo apt-get update
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   curl unzip gmsh ca-certificates
 
 ARCH="$(uname -m)"
@@ -30,7 +44,7 @@ echo "==> Downloading latest OpenCourant asset: $ASSET"
 rm -f "$ZIP_PATH"
 
 # Prefer GitHub CLI inside Codespaces because it uses the authenticated
-# GitHub session and is more reliable than following browser release redirects.
+# GitHub session and avoids browser download restrictions on the local PC.
 if command -v gh >/dev/null 2>&1; then
   gh release download \
     --repo OpenCourant/OpenCourant \
@@ -69,7 +83,8 @@ unzip -q "$ZIP_PATH" -d "$EXTRACT_DIR"
 STARTER="$(find "$EXTRACT_DIR" -type f -name 'starter_linux*' | head -n 1 || true)"
 if [[ -z "$STARTER" ]]; then
   echo "Could not locate OpenCourant starter executable after extraction." >&2
-  find "$EXTRACT_DIR" -maxdepth 3 -type f | head -n 50
+  echo "Extracted files (first 50):"
+  find "$EXTRACT_DIR" -maxdepth 4 -type f | head -n 50
   exit 4
 fi
 
