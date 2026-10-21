@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dong2019 | OpenCourant FEA Animation</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f9fc;color:#17212f;font-family:system-ui,Arial,sans-serif}
+header{padding:13px 22px;background:#fff;border-bottom:1px solid #dce3eb}header h2{margin:0;font-size:18px}
+header small{color:#64748b}.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 22px;background:white}
+button,select{padding:8px 12px;border:1px solid #ccd5e0;border-radius:7px;background:white;cursor:pointer}
+button{background:#1e40af;color:white;border:0}input[type=range]{width:min(390px,42vw)}
+#plot{height:calc(100vh - 165px);min-height:460px}#status{padding:3px 22px;color:#475569;font-size:12px;min-height:20px}
+</style><script src="plotly.min.js"></script></head>
+<body><header><h2>Dong2019 · OpenCourant FEA Animation</h2><small>Surface visualization from converted VTK results — field values are per surface triangle</small></header>
+<div class="controls"><button id="play">▶ Play</button><label>Frame <input id="slider" type="range" min="0" max="0" value="0"></label>
+<strong id="counter">—</strong><label>Field <select id="field"><option value="none">Geometry only</option></select></label>
+<label>Speed <select id="speed"><option value="1200">Slow</option><option value="600" selected>Normal</option><option value="300">Fast</option></select></label></div>
+<div id="status">Loading…</div><div id="plot"></div>
+<script>
+'use strict';
+let manifest=null,idx=0,playing=false,requestId=0,plotReady=false;
+const slider=document.querySelector('#slider'),counter=document.querySelector('#counter'),selector=document.querySelector('#field');
+const button=document.querySelector('#play'),status=document.querySelector('#status'),cache=new Map();
+async function getJSON(path){
+  // Resolve relative to this HTML page, never the project root.
+  const url=new URL(path,document.baseURI);
+  const response=await fetch(url,{cache:'no-store'});
+  if(!response.ok)throw Error(url.pathname+' returned HTTP '+response.status);
+  const body=await response.text();
+  try{return JSON.parse(body);}catch(e){throw Error(url.pathname+' returned non-JSON content: '+body.slice(0,70));}
+}
+async function readFrame(n){
+  if(cache.has(n))return cache.get(n);
+  const f=await getJSON(manifest.frames[n].path);
+  if(!Array.isArray(f.i)||!Array.isArray(f.j)||!Array.isArray(f.k)||!f.fields)throw Error('Malformed frame '+n);
+  cache.set(n,f);if(cache.size>4)cache.delete(cache.keys().next().value);
+  return f;
+}
+function meshTrace(f,indices,values,range){
+  const t={type:'mesh3d',x:f.x,y:f.y,z:f.z,
+    i:indices.map(n=>f.i[n]),j:indices.map(n=>f.j[n]),k:indices.map(n=>f.k[n]),
+    flatshading:true,opacity:1,hoverinfo:'skip',name:'Dong2019'};
+  if(values){Object.assign(t,{intensity:values,intensitymode:'cell',colorscale:'Turbo',
+    cmin:range[0],cmax:range[0]===range[1]?range[1]+1:range[1],
+    showscale:true,colorbar:{title:selector.value,thickness:18}});
+  }else{t.color='#a8b4c2';t.showscale=false;}
+  return t;
+}
+async function render(n){
+  const token=++requestId;idx=n;slider.value=n;
+  counter.textContent=`${n+1} / ${manifest.frames.length} · ${manifest.frames[n].name}`;
+  status.textContent='Loading '+manifest.frames[n].name+'…';
+  try{
+    const f=await readFrame(n);if(token!==requestId)return;
+    const field=selector.value,all=Array.from({length:f.i.length},(_,i)=>i),traces=[];
+    let validCount=0;
+    if(field!=='none'&&Array.isArray(f.fields[field])){
+      const values=f.fields[field];
+      if(values.length!==f.i.length)throw Error(field+': '+values.length+' values for '+f.i.length+' triangles');
+      const valid=all.filter(i=>typeof values[i]==='number'&&Number.isFinite(values[i]));
+      const missing=all.filter(i=>typeof values[i]!=='number'||!Number.isFinite(values[i]));
+      validCount=valid.length;
+      // Separate triangles lacking this result. Avoid mapping null values to a grey surface.
+      if(missing.length)traces.push(meshTrace(f,missing,null,null));
+      if(valid.length)traces.push(meshTrace(f,valid,valid.map(i=>values[i]),manifest.limits[field]));
+    }else{traces.push(meshTrace(f,all,null,null));}
+    if(!traces.length)traces.push(meshTrace(f,all,null,null));
+    if(token!==requestId)return;
+    await Plotly.react('plot',traces,{
+      margin:{l:0,r:0,b:0,t:0},uirevision:'keep-camera',
+      scene:{aspectmode:'data',xaxis:{title:'X'},yaxis:{title:'Y'},zaxis:{title:'Z'}},paper_bgcolor:'#f7f9fc'
+    },{responsive:true,displaylogo:false});
+    status.textContent=`Showing ${f.name} · ${f.i.length.toLocaleString()} triangles · ${field==='none'?'Geometry only':`${validCount.toLocaleString()} triangles with ${field} (${(100*validCount/f.i.length).toFixed(1)}%)`}`;
+  }catch(e){status.textContent='Error: '+e.message;playing=false;button.textContent='▶ Play';console.error(e);}
+}
+async function playLoop(){
+  while(playing){
+    const start=Date.now();
+    await render((idx+1)%manifest.frames.length);
+    if(!playing)break;
+    await new Promise(resolve=>setTimeout(resolve,Math.max(20,(+document.querySelector('#speed').value)-(Date.now()-start))));
+  }
+}
+button.onclick=()=>{playing=!playing;button.textContent=playing?'❚❚ Pause':'▶ Play';if(playing)playLoop();};
+slider.oninput=e=>render(+e.target.value);selector.onchange=()=>render(idx);
+(async()=>{
+  try{
+    manifest=await getJSON('manifest.json');slider.max=manifest.frames.length-1;
+    for(const name of Object.keys(manifest.limits)){const o=document.createElement('option');o.value=name;o.textContent=name;selector.appendChild(o);}
+    if(manifest.limits['3DELEM_Von_Mises'])selector.value='3DELEM_Von_Mises';
+    await render(0);
+  }catch(e){status.textContent='Error: '+e.message;console.error(e);}
+})();
+</script></body></html>

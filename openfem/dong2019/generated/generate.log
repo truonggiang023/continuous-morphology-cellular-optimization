@@ -1,0 +1,156 @@
+{
+  "paper": {
+    "thin_relative_density": 0.109,
+    "target_c3d8r_elements": 10068,
+    "horizontal_divisions": 19,
+    "bevel_divisions": 10,
+    "experimental_plateau_MPa": 0.28,
+    "experimental_densification_strain": 0.58,
+    "fe_plateau_5x6_MPa": 0.31
+  },
+  "geometry": {
+    "bounds_mm": [
+      -0.3656326347652619,
+      -0.15,
+      76.13151406452977,
+      47.85
+    ],
+    "nominal_height_mm": 48.0,
+    "depth_mm": 25.0,
+    "mesh_area_mm2": 432.43433700137325,
+    "mesh_volume_mm3": 10810.858425034332,
+    "relative_density_vs_76x48": 0.11854011430958697,
+    "cell_h": 7.95,
+    "half_h": 3.975,
+    "dx_ref": 4.029264821279436,
+    "waist_shift": 4.029264821279436,
+    "pitch_x": 15.941470357441128,
+    "actual_inclined": 5.66,
+    "exact_section_area_mm2": 407.6455021557439
+  },
+  "mesh": {
+    "trials": [
+      {
+        "parent_lc": 1.05,
+        "estimated_final_h": 0.525,
+        "quads": 13168,
+        "hex_estimate": 26336,
+        "types": {
+          "15": 358,
+          "1": 5752,
+          "3": 13168
+        },
+        "min_scaled_jacobian_2d": 0.05320023246247904,
+        "max_edge_aspect_2d": 10.73448207260655,
+        "nonpositive_corners": 0
+      },
+      {
+        "parent_lc": 1.1,
+        "estimated_final_h": 0.55,
+        "quads": 13168,
+        "hex_estimate": 26336,
+        "types": {
+          "15": 358,
+          "1": 5752,
+          "3": 13168
+        },
+        "min_scaled_jacobian_2d": 0.05320023246247904,
+        "max_edge_aspect_2d": 10.73448207260655,
+        "nonpositive_corners": 0
+      },
+      {
+        "parent_lc": 1.15,
+        "estimated_final_h": 0.575,
+        "quads": 13168,
+        "hex_estimate": 26336,
+        "types": {
+          "15": 358,
+          "1": 5752,
+          "3": 13168
+        },
+        "min_scaled_jacobian_2d": 0.05320023246247904,
+        "max_edge_aspect_2d": 10.73448207260655,
+        "nonpositive_corners": 0
+      },
+      {
+        "parent_lc": 1.2,
+        "estimated_final_h": 0.6,
+        "quads": 13168,
+        "hex_estimate": 26336,
+        "types": {
+          "15": 358,
+          "1": 5752,
+          "3": 13168
+        },
+        "min_scaled_jacobian_2d": 0.05320023246247904,
+        "max_edge_aspect_2d": 10.73448207260655,
+        "nonpositive_corners": 0
+      },
+      {
+        "parent_lc": 1.25,
+        "estimated_final_h": 0.625,
+        "quads": 13168,
+        "hex_estimate": 26336,
+        "types": {
+          "15": 358,
+          "1": 5752,
+          "3": 13168
+        },
+        "min_scaled_jacobian_2d": 0.05320023246247904,
+        "max_edge_aspect_2d": 10.73448207260655,
+        "nonpositive_corners": 0
+      },
+      {
+        "parent_lc": 1.3,
+        "estimated_final_h": 0.65,
+        "quads": 13168,
+        "hex_estimate": 26336,
+        "types": {
+          "15": 358,
+          "1": 5752,
+          "3": 13168
+        },
+        "min_scaled_jacobian_2d": 0.05320023246247904,
+        "max_edge_aspect_2d": 10.73448207260655,
+        "nonpositive_corners": 0
+      }
+    ],
+    "selected": {
+      "parent_lc": 1.2,
+      "estimated_final_h": 0.6,
+      "quads": 13168,
+      "hex_estimate": 26336,
+      "types": {
+        "15": 358,
+        "1": 5752,
+        "3": 13168
+      },
+      "min_scaled_jacobian_2d": 0.05320023246247904,
+      "max_edge_aspect_2d": 10.73448207260655,
+      "nonpositive_corners": 0
+    },
+    "selected_2d_quads": 13168,
+    "selected_3d_hex8": 26336,
+    "z_layers": 2,
+    "gmsh_types": {
+      "15": 358,
+      "1": 5752,
+      "3": 13168
+    }
+  },
+  "loading": {
+    "step_time_ms": 1000.0,
+    "target_dt_ms": 0.01,
+    "compression_strain": 0.8,
+    "nominal_stress_area_mm2": 1900.0,
+    "platen_friction": 0.35,
+    "self_friction": 0.0
+  },
+  "model_scope": {
+    "damage": "OFF in Stage-1 baseline; full Dong triaxiality locus is not published",
+    "platens": "rigid walls for Stage-1; paper used elastic steel plates"
+  },
+  "master_bottom": 47986,
+  "master_top": 47987,
+  "compression_displacement_mm": 38.400000000000006
+}
